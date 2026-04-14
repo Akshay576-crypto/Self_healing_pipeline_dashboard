@@ -1,9 +1,6 @@
 streamlit
-loguru
 pandas
 numpy
+loguru
 requests
-mysql-connector-python
-sqlalchemy
 schedule
-python-dotenv
