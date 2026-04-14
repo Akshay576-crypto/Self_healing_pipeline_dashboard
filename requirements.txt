@@ -1,0 +1,9 @@
+streamlit
+loguru
+pandas
+numpy
+requests
+mysql-connector-python
+sqlalchemy
+schedule
+python-dotenv
