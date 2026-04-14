@@ -1,0 +1,43 @@
+self_healing_pipeline/
+│
+├── main.py
+├── config.py
+│
+├── ingestion/
+│   ├── api_client.py        # fetch real-time API
+│   ├── parser.py            # convert raw response → structured data
+│
+├── database/
+│   ├── connect_db.py
+│   ├── insert.py
+│   ├── fetch.py
+│
+├── processing/
+│   ├── validate.py          # detect issues
+│   ├── clean.py             # fix issues
+│   ├── rules.py             # rule engine
+│   ├── quality_score.py     # calculate data quality
+│
+├── logging_system/
+│   ├── error_logger.py
+│   ├── fix_logger.py
+│   ├── pipeline_logger.py   # track pipeline runs
+│
+├── pipeline/
+│   ├── executor.py          # full pipeline controller (VERY IMPORTANT)
+│
+├── scheduler/
+│   ├── run_pipeline.py
+│
+├── utils/
+│   ├── helpers.py
+│   ├── constants.py
+││
+├── api/                  # FastAPI (deploye pipeline)
+│   ├── app.py
+│
+├── dashboard/             THIS IS OUR UI
+│   ├── app.py             Streamlit main file
+│
+|
+└── README.md

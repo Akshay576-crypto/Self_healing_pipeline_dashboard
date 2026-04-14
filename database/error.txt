@@ -1,0 +1,156 @@
+from loguru import logger
+from database.connect_db import get_connection
+
+
+class InsertData:
+
+    
+    @staticmethod
+    def insert_raw(data):
+        conn = None
+        cursor = None
+
+        try:
+            conn = get_connection()
+            if not conn:
+                logger.error("DB connection failed (raw insert)")
+                return
+
+            cursor = conn.cursor()
+
+            query = """
+            INSERT INTO customer_raw (name, email, age, city, raw_json)
+            VALUES (%s, %s, %s, %s, %s)
+            """
+
+            for record in data:
+                cursor.execute(query, (
+                    record.get("name"),
+                    record.get("email"),
+                    record.get("id"),  # API id as age
+                    record.get("address", {}).get("city"),
+                    str(record)
+                ))
+
+            conn.commit()
+            logger.success(f"{len(data)} raw records inserted")
+
+        except Exception as e:
+            logger.error(f"Raw insert failed: {e}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+
+    @staticmethod
+    def insert_cleaned(data):
+        conn = None
+        cursor = None
+
+        try:
+            conn = get_connection()
+            if not conn:
+                logger.error("DB connection failed (cleaned insert)")
+                return
+
+            cursor = conn.cursor()
+
+            # 🔥 IMPORTANT: removed city (to fix your error)
+            query = """
+            INSERT INTO customer_cleaned (name, email, age)
+            VALUES (%s, %s, %s)
+            """
+
+            for record in data:
+                cursor.execute(query, (
+                    record["name"],
+                    record["email"],
+                    record["age"]
+                ))
+
+            conn.commit()
+            logger.success(f"{len(data)} cleaned records inserted")
+
+        except Exception as e:
+            logger.error(f"Cleaned insert failed: {e}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+
+    
+    @staticmethod
+    def insert_error(data):
+        conn = None
+        cursor = None
+
+        try:
+            conn = get_connection()
+            if not conn:
+                logger.error("DB connection failed (error insert)")
+                return
+
+            cursor = conn.cursor()
+
+            query = """
+            INSERT INTO customer_error (error_message, raw_json)
+            VALUES (%s, %s)
+            """
+
+            for record in data:
+                cursor.execute(query, (
+                    record.get("error"),
+                    str(record.get("data"))
+                ))
+
+            conn.commit()
+            logger.warning(f"{len(data)} error records inserted")
+
+        except Exception as e:
+            logger.error(f"Error insert failed: {e}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+
+    
+    @staticmethod
+    def log_pipeline_run(status, message):
+        conn = None
+        cursor = None
+
+        try:
+            conn = get_connection()
+            if not conn:
+                logger.error("DB connection failed (log insert)")
+                return
+
+            cursor = conn.cursor()
+
+            query = """
+            INSERT INTO pipeline_runs (status, message)
+            VALUES (%s, %s)
+            """
+
+            cursor.execute(query, (status, message))
+            conn.commit()
+
+            logger.info("Pipeline run logged")
+
+        except Exception as e:
+            logger.error(f"Pipeline log failed: {e}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()

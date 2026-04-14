@@ -1,0 +1,94 @@
+from loguru import logger
+from pipeline.pipeline_executor import PipelineExecutor
+from ingestion.api_client import APIClient
+from ingestion.parser import DataParser
+from processing.validate import DataValidator
+from processing.clean import DataCleaner
+from scheduler.runs_pipeline import start_scheduler   
+
+
+
+def test_pipeline():
+    logger.info(" Pipeline Test Started")
+
+    try:
+        # Step 1: Fetch
+        raw_data = APIClient.fetch_data()
+        if not raw_data:
+            logger.error(" No data fetched")
+            return
+        print("\n RAW DATA SAMPLE:", raw_data[0])
+
+        # Step 2: Parse
+        parsed_data = DataParser.parse(raw_data)
+        if not parsed_data:
+            logger.error(" Parsing returned empty data")
+            return
+        print("\n PARSED SAMPLE:", parsed_data[0])
+
+        # Step 3: Validate
+        valid_data, error_data = DataValidator.validate(parsed_data)
+
+        if valid_data:
+            print("\n VALID SAMPLE:", valid_data[0])
+        else:
+            logger.warning(" No valid data found")
+
+        print(f"\n Errors Count: {len(error_data)}")
+
+        # Step 4: Clean
+        cleaned_data = DataCleaner.clean(valid_data)
+
+        if cleaned_data:
+            print("\n CLEANED SAMPLE:", cleaned_data[0])
+        else:
+            logger.warning(" No cleaned data")
+
+        logger.success(" Pipeline Step-by-Step Test Completed")
+
+    except Exception as e:
+        logger.error(f" Test Error: {e}")
+
+
+
+def run_pipeline_once():
+    try:
+        logger.info(" Running full pipeline...")
+        PipelineExecutor.run()
+        logger.success(" Pipeline run completed")
+
+    except Exception as e:
+        logger.critical(f" Pipeline failed: {e}")
+
+
+#  SCHEDULER  (AUTOMATION)
+def run_scheduler():
+    try:
+        logger.info(" Starting Scheduler Mode...")
+        start_scheduler()
+
+    except Exception as e:
+        logger.critical(f" Scheduler failed: {e}")
+
+
+#  MAIN CONTROLLER
+def main(mode="test"):
+    if mode == "test":
+        test_pipeline()
+
+    elif mode == "run":
+        run_pipeline_once()
+
+    elif mode == "scheduler":
+        run_scheduler()
+
+    else:
+        logger.error(" Invalid mode selected")
+
+
+if __name__ == "__main__":
+    
+
+    main(mode="test")        # Step-by-step debug
+    # main(mode="run")       # Full pipeline once
+    # main(mode="scheduler") # Automation

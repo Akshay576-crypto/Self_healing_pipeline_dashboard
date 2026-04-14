@@ -1,0 +1,14 @@
+
+import mysql.connector
+from SELF_HEALING_ETL.database.connect_db import get_connection
+from loguru import logger 
+
+
+def get_connection():
+    try:
+        logger.info(f"Data base connection started")
+        conn = mysql.connector.connect(**DB_CONFIG)
+        logger.success(f"Database connected successfully")
+    except Exception as e:
+        logger.error(f"Some error occured database cant connect")
+        return None

@@ -1,0 +1,57 @@
+from database.connect_db import get_connection
+
+conn = get_connection()
+
+if conn:
+    print("Connected")
+else:
+    print(" Failed")
+
+
+from ingestion.api_client import APIClient
+
+data = APIClient.fetch_data()
+for user in data[:2]:
+    print(f"Name: {user['name']}, Email: {user['email']}")
+
+
+from ingestion.api_client import APIClient
+from ingestion.parser import DataParser
+
+# Fetch data
+data = APIClient.fetch_data()
+
+# Parse data
+cleaned_data, error_data = DataParser.parse(data)
+
+print(f"Cleaned: {len(cleaned_data)}")
+print(f"Errors: {len(error_data)}")
+
+
+from database.insert import InsertData
+
+test_data = [
+    {
+        "name": "Akshay",
+        "email": "akshay@test.com",
+        "age": 22,
+        "city": "Surat"
+    }
+]
+
+InsertData.insert_cleaned(test_data)
+
+
+from database.fetch import FetchData
+
+
+def run_pipeline():
+    # your existing pipeline logic...
+
+    print("\n--- TEST FETCH ---")
+
+    cleaned = FetchData.fetch_cleaned()
+    print("CLEANED DATA:", cleaned)
+
+    errors = FetchData.fetch_errors()
+    print("ERROR DATA:", errors)
